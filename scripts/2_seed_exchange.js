@@ -1,5 +1,5 @@
 import hre from 'hardhat';
-import config from '../src/config.js';
+import config from '../src/config.json';
 // const config = require('../src/config.json');
 const {ethers} = hre;
 
