@@ -1,6 +1,16 @@
 import hre from 'hardhat';
-import config from '../src/config.json';
-// const config = require('../src/config.json');
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+
+const filePath = path.join(__dirname, '../src/config.json');
+const jsonData = fs.readFileSync(filePath, 'utf-8');
+const config = JSON.parse(jsonData);
+
+// console.log(config);
 const {ethers} = hre;
 
 const tokens = (n)=>{

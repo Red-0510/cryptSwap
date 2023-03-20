@@ -1,10 +1,18 @@
 import react,{useEffect} from 'react';
 import { useDispatch } from 'react-redux';
 import { ethers } from 'ethers';
-import TOKEN_ABI from './abis/Token.json';
 import config from './config.json';
 
-import { loadProvider,loadNetwork } from './store/interactions.js';
+import Navbar from './components/Navbar.jsx';
+import Markets from './components/Markets.jsx';
+
+import { 
+  loadProvider,
+  loadNetwork,
+  loadAccount,
+  loadTokens,
+  loadExchange,
+} from './store/interactions.js';
 
 import './App.css';
 
@@ -13,15 +21,30 @@ function App() {
   const dispatch = useDispatch();
 
   const loadBlockchaindata= async ()=>{
-    const accounts = await window.ethereum.request({method:'eth_requestAccounts'});
-    console.log(accounts);
     const provider = loadProvider(dispatch);
+    
     const chainId = await loadNetwork(provider,dispatch);
     console.log(chainId);
-    const token = new ethers.Contract(config[chainId].mBTC.address,TOKEN_ABI,provider);
+
+    window.ethereum.on('chainChanged',()=>{
+      window.location.reload();
+    });
+
+    window.ethereum.on('accountsChanged',async()=>{
+      await loadAccount(provider,dispatch);
+    })
+    // const account = await loadAccount(provider,dispatch);
+    // console.log(account);
+
+    const tokenAddresses = [config[chainId].red.address,config[chainId].mETH.address]
+    const token = await loadTokens(provider,tokenAddresses,dispatch);
     console.log(token.address);
+
     const symbol = await token.symbol();
     console.log(symbol);
+
+    const exchange = await loadExchange(provider,config[chainId].exchange.address,dispatch);
+    console.log(exchange.address);
   }
 
   useEffect(()=>{
@@ -30,12 +53,12 @@ function App() {
 
   return (
     <div className="App">
-      {/* Navbar */}
+      <Navbar />
 
       <main className='exchange grid'>
         <section className='exchange__section--left grid'>
 
-          {/* Markets */}
+          <Markets />
 
           {/* Balance */}
 
