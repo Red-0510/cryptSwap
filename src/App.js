@@ -5,6 +5,7 @@ import config from './config.json';
 
 import Navbar from './components/Navbar.jsx';
 import Markets from './components/Markets.jsx';
+import Balance from './components/Balance.jsx';
 
 import { 
   loadProvider,
@@ -12,6 +13,7 @@ import {
   loadAccount,
   loadTokens,
   loadExchange,
+  subscribeToEvents,
 } from './store/interactions.js';
 
 import './App.css';
@@ -38,13 +40,10 @@ function App() {
 
     const tokenAddresses = [config[chainId].red.address,config[chainId].mETH.address]
     const token = await loadTokens(provider,tokenAddresses,dispatch);
-    console.log(token.address);
-
-    const symbol = await token.symbol();
-    console.log(symbol);
 
     const exchange = await loadExchange(provider,config[chainId].exchange.address,dispatch);
-    console.log(exchange.address);
+    
+    subscribeToEvents(exchange,dispatch);
   }
 
   useEffect(()=>{
@@ -60,7 +59,7 @@ function App() {
 
           <Markets />
 
-          {/* Balance */}
+          <Balance />
 
           {/* Markets */}
 

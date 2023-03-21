@@ -1,4 +1,4 @@
-import react from 'react';
+import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import config from '../config.json';
 import { loadTokens } from '../store/interactions.js';
