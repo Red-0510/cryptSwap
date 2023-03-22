@@ -6,6 +6,7 @@ import config from './config.json';
 import Navbar from './components/Navbar.jsx';
 import Markets from './components/Markets.jsx';
 import Balance from './components/Balance.jsx';
+import Order from './components/Order.jsx';
 
 import { 
   loadProvider,
@@ -61,7 +62,7 @@ function App() {
 
           <Balance />
 
-          {/* Markets */}
+          <Order />
 
         </section>
         <section className='exchange__section--right grid'>
