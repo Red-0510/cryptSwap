@@ -99,6 +99,31 @@ async function main(){
     console.log(`made order from ${user1.address}`);
 
     orderId = await exchange.orderCount();
+    console.log(`orderId : ${orderId}`);
+    transaction = await exchange.connect(user2).fillOrder(orderId);
+    await transaction.wait();
+    console.log(`Filled the order from ${user2.address} created by ${user1.address}`);
+
+    await wait(1);
+
+    transaction = await exchange.connect(user1).makeOrder(mETH.address,tokens(1),red.address,tokens(1));
+    await transaction.wait();
+    console.log(`made order from ${user1.address}`);
+
+    orderId = await exchange.orderCount();
+    console.log(`orderId : ${orderId}`);
+    transaction = await exchange.connect(user2).fillOrder(orderId);
+    await transaction.wait();
+    console.log(`Filled the order from ${user2.address} created by ${user1.address}`);
+
+    await wait(1);
+
+    transaction = await exchange.connect(user1).makeOrder(mETH.address,tokens(2),red.address,tokens(1));
+    await transaction.wait();
+    console.log(`made order from ${user1.address}`);
+
+    orderId = await exchange.orderCount();
+    console.log(`orderId : ${orderId}`);
     transaction = await exchange.connect(user2).fillOrder(orderId);
     await transaction.wait();
     console.log(`Filled the order from ${user2.address} created by ${user1.address}`);
@@ -110,6 +135,7 @@ async function main(){
     console.log(`made order from ${user2.address}`);
     
     orderId = await exchange.orderCount();
+    console.log(`orderId : ${orderId}`);
     transaction = await exchange.connect(user3).fillOrder(orderId);
     await transaction.wait();
     console.log(`Filled the order from ${user3.address} created by ${user2.address}`);
@@ -121,6 +147,7 @@ async function main(){
     console.log(`made order from ${user3.address}`);
     
     orderId = await exchange.orderCount();
+    console.log(`orderId : ${orderId}`);
     transaction = await exchange.connect(user1).fillOrder(orderId);
     await transaction.wait();
     console.log(`Filled the order from ${user1.address} created by ${user3.address}`);
@@ -144,7 +171,9 @@ async function main(){
         await transaction.wait();
         console.log(`made ${i}th order from ${user3.address}`);
     }
-}
+    orderId = await exchange.orderCount();
+    console.log(`orderId : ${orderId}`);
+}   
 
 main()
    .then(()=>process.exit(0))

@@ -8,6 +8,7 @@ import Markets from './components/Markets.jsx';
 import Balance from './components/Balance.jsx';
 import Order from './components/Order.jsx';
 import OrderBook from './components/OrderBook.jsx';
+import PriceChart from './components/PriceChart.jsx';
 
 import { 
   loadProvider,
@@ -70,7 +71,7 @@ function App() {
         </section>
         <section className='exchange__section--right grid'>
 
-          {/* PriceChart */}
+          <PriceChart />
 
           {/* Transactions */}
 
