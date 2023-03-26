@@ -68,6 +68,15 @@ const DEFAULT_EXCHANGE_STATE = {
         isSuccessful:false,
     },
     allOrders:{
+        loaded:false,
+        data:[]
+    },
+    cancelledOrders:{
+        loaded:false,
+        data:[]
+    },
+    filledOrders:{
+        loaded:false,
         data:[]
     },
     events:[]
@@ -123,6 +132,34 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE,action)=>{
                 },
                 transferInProgress:false
             };
+
+        case 'FILLED_ORDERS_LOADED':
+            return {
+                ...state,
+                filledOrders:{
+                    loaded:true,
+                    data:action.filledOrders
+                }
+            }
+        
+        case 'CANCELLED_ORDERS_LOADED':
+            return {
+                ...state,
+                cancelledOrders:{
+                    loaded:true,
+                    data:action.cancelledOrders,
+                }
+            }
+        
+        case 'ALL_ORDERS_LOADED':
+            return {
+                ...state,
+                allOrders:{
+                    loaded:true,
+                    data:action.allOrders
+                }
+            }
+        
         case 'NEW_ORDER_REQUEST':
             return {
                 ...state,
@@ -135,7 +172,7 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE,action)=>{
         case 'NEW_ORDER_SUCCESS':
 
             let index,data;
-            index = state.allOrders.data.findIndex(order=> order.id===action.order.id)
+            index = state.allOrders.data.findIndex(order=> order.id.toString()===action.order.id.toString())
 
             if(index===-1) {
                 data = [...state.allOrders.data,action.order];

@@ -105,7 +105,7 @@ export const transferTokens = async(provider,dispatch,exchange,transferType,toke
 
 };
 
-export const makeNewOrder = async(provider,dispatch,exchange,tokens,order) =>{
+export const makeBuyOrder = async(provider,dispatch,exchange,tokens,order) =>{
     const tokenGet = tokens[0].address;
     const tokenGive = tokens[1].address;
     const amountGet = ethers.utils.parseUnits(order.amount.toString(),18);
@@ -121,4 +121,39 @@ export const makeNewOrder = async(provider,dispatch,exchange,tokens,order) =>{
     catch(error){
         dispatch({type:'NEW_ORDER_FAIL'});
     }
+};
+
+export const makeSellOrder = async(provider,dispatch,exchange,tokens,order) =>{
+    const tokenGet = tokens[1].address;
+    const tokenGive = tokens[0].address;
+    const amountGet = ethers.utils.parseUnits((order.amount*order.price).toString(),18);
+    const amountGive = ethers.utils.parseUnits(order.amount.toString(),18);
+
+    dispatch({type:'NEW_ORDER_REQUEST'});
+    let transaction;
+    try{
+        const signer = await provider.getSigner();
+        transaction = await exchange.connect(signer).makeOrder(tokenGet,amountGet,tokenGive,amountGive);
+        await transaction.wait();
+    }
+    catch(error){
+        dispatch({type:'NEW_ORDER_FAIL'});
+    }
+}
+
+export const loadAllOrders = async (provider, dispatch, exchange)=>{
+    const block = provider.getBlockNumber();
+
+    const cancelStream = await exchange.queryFilter('CancelOrder',0,block);
+    const cancelledOrders = cancelStream.map(event=>event.args);
+    dispatch({type:'CANCELLED_ORDERS_LOADED',cancelledOrders});
+
+    const tradeStream = await exchange.queryFilter('Trade',0,block);
+    const filledOrders = tradeStream.map(event=>event.args);
+    dispatch({type:'FILLED_ORDERS_LOADED',filledOrders});
+
+    const orderStream = await exchange.queryFilter('Order',0,block);
+    const allOrders = orderStream.map(event=>event.args);
+
+    dispatch({type:'ALL_ORDERS_LOADED',allOrders});
 }

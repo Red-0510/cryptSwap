@@ -2,7 +2,7 @@ import {React,useState, useRef} from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 
-import {makeNewOrder} from '../store/interactions.js';
+import {makeBuyOrder,makeSellOrder} from '../store/interactions.js';
 
 
 const Order = () => {
@@ -34,12 +34,16 @@ const Order = () => {
 
     const buyHandler = (e)=>{
         e.preventDefault();
-        makeNewOrder(provider,dispatch,exchange,tokens,{amount,price});
+        makeBuyOrder(provider,dispatch,exchange,tokens,{amount,price});
+        setAmount(0);
+        setPrice(0);
     }
 
     const sellHandler = (e)=>{
         e.preventDefault();
-        console.log('selling');
+        makeSellOrder(provider,dispatch,exchange,tokens,{amount,price});
+        setAmount(0);
+        setPrice(0);
     }
 
     return (

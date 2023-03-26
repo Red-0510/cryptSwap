@@ -7,6 +7,7 @@ import Navbar from './components/Navbar.jsx';
 import Markets from './components/Markets.jsx';
 import Balance from './components/Balance.jsx';
 import Order from './components/Order.jsx';
+import OrderBook from './components/OrderBook.jsx';
 
 import { 
   loadProvider,
@@ -14,6 +15,7 @@ import {
   loadAccount,
   loadTokens,
   loadExchange,
+  loadAllOrders,
   subscribeToEvents,
 } from './store/interactions.js';
 
@@ -44,6 +46,7 @@ function App() {
 
     const exchange = await loadExchange(provider,config[chainId].exchange.address,dispatch);
     
+    loadAllOrders(provider,dispatch,exchange);
     subscribeToEvents(exchange,dispatch);
   }
 
@@ -73,7 +76,7 @@ function App() {
 
           {/* Trades */}
 
-          {/* OrderBook */}
+          <OrderBook />
         </section>
       </main>
 
