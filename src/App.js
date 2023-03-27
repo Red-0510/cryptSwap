@@ -9,6 +9,9 @@ import Balance from './components/Balance.jsx';
 import Order from './components/Order.jsx';
 import OrderBook from './components/OrderBook.jsx';
 import PriceChart from './components/PriceChart.jsx';
+import Trades from './components/Trades.jsx';
+import Transactions from './components/Transactions.jsx';
+
 
 import { 
   loadProvider,
@@ -73,9 +76,9 @@ function App() {
 
           <PriceChart />
 
-          {/* Transactions */}
+          <Transactions />
 
-          {/* Trades */}
+          <Trades />
 
           <OrderBook />
         </section>

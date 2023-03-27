@@ -6,7 +6,9 @@ import moment from "moment";
 const CLASSGREEN = '#25ce8f';
 const CLASSRED = '#f45353';
 
-const tokens = state =>get(state,'tokens.contracts');
+const tokens = state =>get(state,'tokens.contracts',[]);
+const account = state =>get(state,'provider.account');
+
 const allOrders = state => get(state,'exchange.allOrders.data',[]);
 const cancelledOrders = state=>get(state,'exchange.cancelledOrders.data',[]);
 const filledOrders = state=>get(state,'exchange.filledOrders.data',[]);
@@ -45,7 +47,41 @@ const decorateOrder = (order,tokens)=>{
         tokenPrice,
         formattedTimestamp:moment.unix(order.timestamp).format('h:mm:ssa d MM D'),
     }
-}
+};
+
+export const myOpenOrdersSelector = createSelector(account, tokens,openOrders, (account,tokens,orders)=>{
+    if(!tokens[0] || !tokens[1]) return;
+    orders = orders.filter(o=>o.user===account);
+    orders = orders.filter(o=>o.tokenGet === tokens[0].address || o.tokenGet===tokens[1].address);
+    orders = orders.filter((o)=>o.tokenGive===tokens[0].address || o.tokenGive===tokens[1].address);
+
+    orders = decorateMyOpenOrders(orders,tokens);
+
+    orders = orders.sort((a,b)=>b.timestamp-a.timestamp);
+
+    return orders;
+});
+
+const decorateMyOpenOrders = (orders,tokens)=>{
+    return (
+        orders.map(order=>{
+            order = decorateOrder(order,tokens);
+            order = decorateMyOpenOrder(order,tokens);
+            return order;
+        })
+    );
+};
+
+const decorateMyOpenOrder = (order,tokens)=>{
+    let orderType = order.tokenGive===tokens[1].address ? 'buy' : 'sell';
+    let orderTypeClass = orderType==='buy' ? CLASSGREEN : CLASSRED;
+
+    return {
+        ...order,
+        orderType,
+        orderTypeClass,
+    };
+};
 
 export const orderBookSelector = createSelector(openOrders,tokens, (orders,tokens)=>{
     if(!tokens[0] || !tokens[1]) return;
@@ -64,6 +100,41 @@ export const orderBookSelector = createSelector(openOrders,tokens, (orders,token
     }
     return orders;
 });
+
+export const filledOrdersSelector = createSelector(filledOrders,tokens,(orders,tokens)=>{
+    if(!tokens[0] || !tokens[1]) return;
+    orders = orders.filter(o=>o.tokenGet === tokens[0].address || o.tokenGet===tokens[1].address);
+    orders = orders.filter((o)=>o.tokenGive===tokens[0].address || o.tokenGive===tokens[1].address);
+
+    orders = orders.sort((a,b)=>a.timestamp - b.timestamp);
+    orders = decorateFilledOrders(orders,tokens);
+    orders.reverse();
+    return orders;
+});
+
+const decorateFilledOrders = (orders,tokens)=>{
+
+    let previousOrder = null;
+    return (
+        orders.map(order=>{
+            order = decorateOrder(order,tokens);
+            order = decorateFilledOrder(order,tokens,previousOrder);
+            previousOrder = order;
+            return order;
+        })
+    );
+}
+
+const decorateFilledOrder = (order,tokens,previousOrder)=>{
+    let tokenPriceClass;
+    if(previousOrder===null) tokenPriceClass = CLASSGREEN;
+    else if(order.tokenPrice>=previousOrder.tokenPrice) tokenPriceClass=CLASSGREEN;
+    else tokenPriceClass=CLASSRED;
+    return {
+        ...order,
+        tokenPriceClass,
+    }
+}
 
 const decorateOrderBookOrders = (orders,tokens)=>{
     orders = orders.map(order=>{
@@ -84,6 +155,7 @@ const decorateOrderBookOrder = (order,tokens)=>{
         orderFillAction:(orderType==='buy'?'sell':'buy'),
     }
 };
+
 
 export const priceChartSelector = createSelector(filledOrders,tokens,(orders,tokens)=>{
     if(!tokens[0] || !tokens[1]) return ;
