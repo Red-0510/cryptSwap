@@ -77,7 +77,17 @@ export const subscribeToEvents = (exchange,dispatch)=>{
     exchange.on('Order',(id,user,tokenGet,amountGet,tokenGive,amountGive,timeStamp,event)=>{
         const order = event.args;
         dispatch({type:'NEW_ORDER_SUCCESS',order,event});
-    })
+    });
+
+    exchange.on('CancelOrder',(id,user,tokenGet,amountGet,tokenGive,amountGive,timestamp,event)=>{
+        const order = event.args;
+        dispatch({type:'ORDER_CANCEL_SUCCESS',order,event});
+    });
+
+    exchange.on('Trade',(id,user,tokenGet,amountGet,tokenGive,amountGive,creator,timestamp,event)=>{
+        const order = event.args;
+        dispatch({type:'ORDER_FILL_SUCCESS',order,event});
+    });
 };
 
 export const transferTokens = async(provider,dispatch,exchange,transferType,token,amount)=>{
@@ -139,7 +149,35 @@ export const makeSellOrder = async(provider,dispatch,exchange,tokens,order) =>{
     catch(error){
         dispatch({type:'NEW_ORDER_FAIL'});
     }
-}
+};
+
+export const cancelOrder = async(provider,exchange,order,dispatch)=>{
+
+    dispatch({type:'ORDER_CANCEL_REQUEST'});
+    let transaction;
+    try{
+        const signer = await provider.getSigner();
+        transaction = await exchange.connect(signer).cancelOrder(order.id);
+        await transaction.wait();
+    }
+    catch(error){
+        dispatch({type:'ORDER_CANCEL_FAIL'});
+    }
+};
+
+export const fillOrder = async(provider,exchange,order,dispatch)=>{
+
+    dispatch({type:'ORDER_FILL_REQUEST'});
+    let transaction;
+    try{
+        const signer = await provider.getSigner();
+        transaction = await exchange.connect(signer).fillOrder(order.id);
+        await transaction.wait();
+    }
+    catch(error){
+        dispatch({type:'ORDER_FILL_FAIL'});
+    }
+};
 
 export const loadAllOrders = async (provider, dispatch, exchange)=>{
     const block = provider.getBlockNumber();
@@ -156,4 +194,4 @@ export const loadAllOrders = async (provider, dispatch, exchange)=>{
     const allOrders = orderStream.map(event=>event.args);
 
     dispatch({type:'ALL_ORDERS_LOADED',allOrders});
-}
+};

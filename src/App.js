@@ -11,7 +11,7 @@ import OrderBook from './components/OrderBook.jsx';
 import PriceChart from './components/PriceChart.jsx';
 import Trades from './components/Trades.jsx';
 import Transactions from './components/Transactions.jsx';
-
+import Alert from './components/Alert.jsx';
 
 import { 
   loadProvider,
@@ -84,7 +84,7 @@ function App() {
         </section>
       </main>
 
-      {/* Alert */}
+      <Alert />
 
     </div>
   );

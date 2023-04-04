@@ -23,14 +23,14 @@ const PriceChart = () => {
   
             <h2>{symbols && symbols[0] && symbols[1] && `${symbols[0]}/${symbols[1]}`}</h2>
   
-            { priceChart && priceChart.length && (
+            {priceChart && (
               <div className='flex'>
                 { priceChart.lastPriceChange==='pos' ? (
                   <img src={upArrow} alt="Arrow Up" />
                 ) : (
                   <img src={downArrow} alt="Arrow Down" />
                 )}
-                <span className='up'></span>
+                <span className='up'>{priceChart.lastPrice}</span>
               </div>
             )}
   

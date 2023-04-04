@@ -8,10 +8,16 @@ const CLASSRED = '#f45353';
 
 const tokens = state =>get(state,'tokens.contracts',[]);
 const account = state =>get(state,'provider.account');
+const events = state=>get(state,'exchange.events',[]);
 
 const allOrders = state => get(state,'exchange.allOrders.data',[]);
 const cancelledOrders = state=>get(state,'exchange.cancelledOrders.data',[]);
 const filledOrders = state=>get(state,'exchange.filledOrders.data',[]);
+
+export const myEventsSelector = createSelector(account,events,(account,events)=>{
+    events = events.filter(e=>e.args.user===account);
+    return events;
+});
 
 const openOrders = (state)=>{
     const all = allOrders(state);
@@ -82,6 +88,41 @@ const decorateMyOpenOrder = (order,tokens)=>{
         orderTypeClass,
     };
 };
+
+export const myFilledOrdersSelector = createSelector(account, tokens,filledOrders, (account,tokens,orders)=>{
+    if(!tokens[0] || !tokens[1]) return;
+    orders = orders.filter(o=>o.user===account || o.creator===account);
+    orders = orders.filter(o=>o.tokenGet === tokens[0].address || o.tokenGet===tokens[1].address);
+    orders = orders.filter((o)=>o.tokenGive===tokens[0].address || o.tokenGive===tokens[1].address);
+
+    orders = orders.sort((a,b)=>b.timestamp - a.timestamp);
+
+    orders = decorateMyFilledOrders(orders,tokens,account);
+    return orders;
+});
+
+const decorateMyFilledOrders = (orders,tokens,account)=>{
+    return (
+        orders.map(order=>{
+            order = decorateOrder(order,tokens);
+            order = decorateMyFilledOrder(order,tokens,account);
+            return order;
+        })
+    );
+};
+
+const decorateMyFilledOrder = (order,tokens,account)=>{
+    const myOrder = order.creator === account;
+    let orderType;
+    if(myOrder) orderType = order.tokenGive===tokens[1].address ? 'buy' : 'sell';
+    else orderType = order.tokenGive===tokens[0].address ? 'buy' : 'sell';
+    return {
+        ...order,
+        orderType,
+        orderTypeClass: orderType==='buy' ? CLASSGREEN: CLASSRED,
+        orderTypeSign: orderType==='buy' ? '+' : '-',
+    };
+}
 
 export const orderBookSelector = createSelector(openOrders,tokens, (orders,tokens)=>{
     if(!tokens[0] || !tokens[1]) return;
